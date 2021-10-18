@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<configuration scan="true" debug="false">
+
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <logger name="ch.qos.logback" level="OFF"/>
+
+  <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <resetJUL>true</resetJUL>
+  </contextListener>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+
+  <property name="LOG_NAME" value="logFile"/>
+  <property name="LOG_PATH" value="./logs/gateway"/>
+  <property name="LOG_ARCHIVE_PATH" value="./logs/gateway/archive"/>
+  <!--to save log data in file and zip it daily-->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${LOG_NAME}.log</file><!-- .\logs\logFile.log -->
+
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"> <!-- TimeBasedRollingPolicy -->
+      <fileNamePattern>${LOG_ARCHIVE_PATH}/${LOG_NAME}.%d{yyyy-MM-dd}.%i.log.zip
+      </fileNamePattern> <!-- logFile.%d{yyyy-MM-dd HH:mm:ss}.log.zip -->
+      <!-- each archived file, size max 10MB -->
+      <maxFileSize>10MB</maxFileSize>
+      <!-- 90 days to keep -->
+      <maxHistory>90</maxHistory> <!-- 30 -->
+      <!-- total size of all archive files, if total size > 5GB,
+  it will delete old archived file -->
+      <totalSizeCap>5GB</totalSizeCap> <!-- 5GB -->
+    </rollingPolicy>
+    <encoder>
+      <charset>utf-8</charset>
+      <Pattern>%d %-5level [%thread] %logger{0}: %msg%n</Pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.karafarin" level="warn, error"
+    additivity="false"> <!-- level="debug, info, warn, error" -->
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
+  <root level="info">
+    <appender-ref ref="FILE"/>
+  </root>
+</configuration>
